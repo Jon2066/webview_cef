@@ -53,6 +53,25 @@ class _MyAppState extends State<MyApp> {
       },
       onUrlChanged: (url) {
         _textController.text = url;
+        final Set<JavascriptChannel> jsChannels = {
+          JavascriptChannel(
+              name: 'Print',
+              onMessageReceived: (JavascriptMessage message) {
+                print(message.message);
+                _controller.sendJavaScriptChannelCallBack(
+                    false,
+                    "{'code':'200','message':'print succeed!'}",
+                    message.callbackId,
+                    message.frameId);
+              }),
+        };
+        //normal JavaScriptChannels
+        _controller.setJavaScriptChannels(jsChannels);
+        //also you can build your own jssdk by execute JavaScript code to CEF
+        _controller.executeJavaScript("function abc(e){return 'abc:'+ e}");
+        _controller
+            .evaluateJavascript("abc('test')")
+            .then((value) => print(value));
       },
     ));
 
