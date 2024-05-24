@@ -73,12 +73,9 @@
 
 namespace base {
 
-template <class T>
-struct is_non_const_reference : std::false_type {};
-template <class T>
-struct is_non_const_reference<T&> : std::true_type {};
-template <class T>
-struct is_non_const_reference<const T&> : std::false_type {};
+template <class T> struct is_non_const_reference : std::false_type {};
+template <class T> struct is_non_const_reference<T&> : std::true_type {};
+template <class T> struct is_non_const_reference<const T&> : std::false_type {};
 
 namespace internal {
 

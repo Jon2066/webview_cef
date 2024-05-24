@@ -809,6 +809,11 @@ NET_ERROR(QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED, -381)
 // The ACCEPT_CH restart has been triggered too many times
 NET_ERROR(TOO_MANY_ACCEPT_CH_RESTARTS, -382)
 
+// The IP address space of the remote endpoint differed from the previous
+// observed value during the same request. Any cache entry for the affected
+// request should be invalidated.
+NET_ERROR(INCONSISTENT_IP_ADDRESS_SPACE, -383)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
@@ -1013,3 +1018,7 @@ NET_ERROR(DNS_NAME_HTTPS_ONLY, -809)
 
 // All DNS requests associated with this job have been cancelled.
 NET_ERROR(DNS_REQUEST_CANCELLED, -810)
+
+// The hostname resolution of HTTPS record was expected to be resolved with
+// alpn values of supported protocols, but did not.
+NET_ERROR(DNS_NO_MACHING_SUPPORTED_ALPN, -811)

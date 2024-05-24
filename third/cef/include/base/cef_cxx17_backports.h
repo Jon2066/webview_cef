@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2021 Marshall A. Greenblatt. Portions copyright (c) 2021
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,42 +28,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// ---------------------------------------------------------------------------
-//
-// The contents of this file must follow a specific format in order to
-// support the CEF translator tool. See the translator.README.txt file in the
-// tools directory for more information.
-//
 
-#ifndef CEF_INCLUDE_CEF_COMMAND_HANDLER_H_
-#define CEF_INCLUDE_CEF_COMMAND_HANDLER_H_
+#ifndef CEF_INCLUDE_BASE_CEF_CXX17_BACKPORTS_H_
+#define CEF_INCLUDE_BASE_CEF_CXX17_BACKPORTS_H_
 #pragma once
 
-#include "include/cef_base.h"
-#include "include/cef_browser.h"
+#if defined(USING_CHROMIUM_INCLUDES)
+// When building CEF include the Chromium header directly.
+#include "base/cxx17_backports.h"
+#else  // !USING_CHROMIUM_INCLUDES
+// The following was removed from Chromium in https://crrev.com/78734f77be.
 
-///
-// Implement this interface to handle events related to commands. The methods of
-// this class will be called on the UI thread.
-///
-/*--cef(source=client)--*/
-class CefCommandHandler : public virtual CefBaseRefCounted {
- public:
-  ///
-  // Called to execute a Chrome command triggered via menu selection or keyboard
-  // shortcut. Values for |command_id| can be found in the cef_command_ids.h
-  // file. |disposition| provides information about the intended command target.
-  // Return true if the command was handled or false for the default
-  // implementation. For context menu commands this will be called after
-  // CefContextMenuHandler::OnContextMenuCommand. Only used with the Chrome
-  // runtime.
-  ///
-  /*--cef()--*/
-  virtual bool OnChromeCommand(CefRefPtr<CefBrowser> browser,
-                               int command_id,
-                               cef_window_open_disposition_t disposition) {
-    return false;
-  }
-};
+namespace base {
 
-#endif  // CEF_INCLUDE_CEF_COMMAND_HANDLER_H_
+// C++14 implementation of C++17's std::size():
+// http://en.cppreference.com/w/cpp/iterator/size
+template <typename Container>
+constexpr auto size(const Container& c) -> decltype(c.size()) {
+  return c.size();
+}
+
+template <typename T, size_t N>
+constexpr size_t size(const T (&array)[N]) noexcept {
+  return N;
+}
+
+}  // namespace base
+
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#endif  // CEF_INCLUDE_BASE_CEF_CXX17_BACKPORTS_H_
