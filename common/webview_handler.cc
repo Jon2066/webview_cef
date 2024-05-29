@@ -213,6 +213,7 @@ void WebviewHandler::CloseAllBrowsers(bool force_close) {
         it.second.browser = nullptr;
     }
     browser_map_.clear();
+    js_callbacks_.clear();
 }
 
 // static

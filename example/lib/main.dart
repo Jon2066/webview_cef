@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:webview_cef/webview_cef.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+  print("oncreate ....");
   runApp(const MyApp());
+  print("onend...");
 }
 
 class MyApp extends StatefulWidget {
@@ -14,28 +20,41 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WindowListener{
   late WebViewController _controller;
-  late WebViewController _controller2;
+  // late WebViewController _controller2;
   final _textController = TextEditingController();
   String title = "";
   Map allCookies = {};
 
   @override
   void initState() {
+    windowManager.addListener(this);
+    windowManager.setPreventClose(true);
     _controller =
         WebviewManager().createWebView(loading: const Text("not initialized"));
-    _controller2 = WebviewManager().createWebView(
-      loading: const Text("not initialized"));
+    // _controller2 = WebviewManager().createWebView(
+    //   loading: const Text("not initialized"));
     super.initState();
     initPlatformState();
   }
 
+
   @override
-  void dispose() {
-    _controller.dispose();
-    _controller2.dispose();
-    WebviewManager().quit();
+  void onWindowClose() async{
+    print("close window ....");
+    await WebviewManager().cleanCef();
+    print("close window ....");
+    super.onWindowClose();
+    await Future.delayed(const Duration(milliseconds: 1000));
+    exit(0);
+  }
+
+  @override
+  void dispose() async{
+    await _controller.dispose();
+    print("onclose ...");
+    // await _controller2.dispose();
     super.dispose();
   }
 
@@ -76,7 +95,7 @@ class _MyAppState extends State<MyApp> {
     ));
 
     await _controller.initialize(_textController.text);
-    await _controller2.initialize("www.baidu.com");
+    // await _controller2.initialize("www.baidu.com");
     // ignore: prefer_collection_literals
     final Set<JavascriptChannel> jsChannels = [
       JavascriptChannel(
@@ -100,6 +119,8 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
   }
+
+  bool show = true;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +193,9 @@ class _MyAppState extends State<MyApp> {
               ),
             ],
           ),
-          Expanded(
+          Visibility(
+            visible: show,
+            child: Expanded(
               child: Row(
             children: [
               ValueListenableBuilder(
@@ -183,15 +206,15 @@ class _MyAppState extends State<MyApp> {
                       : _controller.loadingWidget;
                 },
               ),
-              ValueListenableBuilder(
-                valueListenable: _controller2,
-                builder: (context, value, child) {
-                  return _controller2.value
-                      ? Expanded(child: _controller2.webviewWidget)
-                      : _controller2.loadingWidget;
-                },
-              )
-            ],
+              // ValueListenableBuilder(
+              //   valueListenable: _controller2,
+              //   builder: (context, value, child) {
+              //     return _controller2.value
+              //         ? Expanded(child: _controller2.webviewWidget)
+              //         : _controller2.loadingWidget;
+              //   },
+              // )
+            ]),
           ))
         ],
       )),

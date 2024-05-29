@@ -26,6 +26,9 @@ class WebviewCefPlugin : public flutter::Plugin {
   void HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+  
+  void cleanCef();
+  
   std::shared_ptr<WebviewPlugin> m_plugin;
   
 	FlutterDesktopTextureRegistrarRef m_textureRegistrar;

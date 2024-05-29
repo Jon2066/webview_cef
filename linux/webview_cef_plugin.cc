@@ -234,9 +234,9 @@ static void webview_cef_plugin_dispose(GObject *object)
 {
   webviewPlugins.erase(WEBVIEW_CEF_PLUGIN(object)->m_window);
   WEBVIEW_CEF_PLUGIN(object)->m_plugin = nullptr; 
-  if(webviewPlugins.empty()){
-    webview_cef::stopCEF();
-  }
+  // if(webviewPlugins.empty()){
+    // webview_cef::stopCEF();
+  // }
   G_OBJECT_CLASS(webview_cef_plugin_parent_class)->dispose(object);
 }
 

@@ -71,6 +71,7 @@ class WebviewManager extends ValueNotifier<bool> {
   }
 
   Future<void> methodCallhandler(MethodCall call) async {
+    print("get message ${call.toString()}");
     switch (call.method) {
       case "urlChanged":
         int browserId = call.arguments["browserId"] as int;
@@ -147,9 +148,13 @@ class WebviewManager extends ValueNotifier<bool> {
     return pluginChannel.invokeMethod('visitUrlCookies', [domain, isHttpOnly]);
   }
 
-  Future<void> quit() async {
-    //only call this method when you want to quit the app
-    assert(value);
-    return pluginChannel.invokeMethod('quit');
+  Future<void> cleanCef() async {
+    pluginChannel.invokeMethod("cleanCef");
   }
+
+  // Future<void> quit() async {
+  //   //only call this method when you want to quit the app
+  //   assert(value);
+  //   return pluginChannel.invokeMethod('quit');
+  // }
 }

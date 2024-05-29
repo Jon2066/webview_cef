@@ -218,7 +218,10 @@ namespace webview_cef {
 			std::shared_ptr<WebviewTextureRenderer> renderer = std::make_shared<WebviewTextureRenderer>(plugin_pointer->m_textureRegistrar);
 			return std::dynamic_pointer_cast<WebviewTexture>(renderer);
 		});
-
+		
+		plugin->m_plugin->setDestoryTextureFunc([plugin_pointer = plugin.get()](int64_t textureId) {
+			FlutterDesktopTextureRegistrarUnregisterExternalTexture(plugin_pointer->m_textureRegistrar, textureId, nullptr, nullptr);
+		});
 		window_registrar->AddPlugin(std::move(plugin));
 	}
 		
@@ -227,18 +230,27 @@ namespace webview_cef {
 	}
 
 	WebviewCefPlugin::~WebviewCefPlugin() {
-        m_plugin = nullptr;
+		// cleanCef();
+	}
+
+	void WebviewCefPlugin::cleanCef() {
 		webviewPlugins.erase(m_hwnd);
 		webviewChannels.erase(m_hwnd);
-        if(webviewPlugins.empty()){
-			webview_cef::stopCEF();
-		}
+        // if(webviewPlugins.empty()){
+		// 	webview_cef::stopCEF();
+		// }
+		m_plugin->cleanAllBrowsers();
+		m_plugin = nullptr;
 	}
 
 	void WebviewCefPlugin::HandleMethodCall(
 		const flutter::MethodCall<flutter::EncodableValue>& method_call,
 		std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
 		WValue *encodeArgs = encode_flvalue_to_wvalue(const_cast<flutter::EncodableValue *>(method_call.arguments()));
+		if (method_call.method_name().compare("cleanCef") == 0){
+			cleanCef();
+			result->Success();
+		}
 		m_plugin->HandleMethodCall(method_call.method_name(), encodeArgs, [=](int ret, WValue* args){
 			if (ret > 0){
 				result->Success(encode_wvalue_to_flvalue(args));

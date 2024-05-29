@@ -21,12 +21,21 @@ namespace webview_cef {
         }
 
     WebviewPlugin::~WebviewPlugin() {
+
+	}
+
+	void WebviewPlugin::cleanAllBrowsers() {
 		uninitCallback();
 		m_handler->CloseAllBrowsers(true);
 		m_handler = nullptr;
 		if(!m_renderers.empty()){
+			for (auto it = m_renderers.begin(); it != m_renderers.end(); ++it) {
+				std::shared_ptr<WebviewTexture> texture = it->second; // 获取值
+				m_destoryTextureFunc(texture->textureId);
+			}
 			m_renderers.clear();
 		}
+		stopCEF();
 	}
 
 	void WebviewPlugin::initCallback() {
@@ -205,13 +214,14 @@ namespace webview_cef {
 					userAgent = CefString(webview_value_get_string(values));
 				}
 				startCEF();
+				isCefInitialized = true;
 			}
 			initCallback();
 			result(1, nullptr);
 		}
 		else if (name.compare("quit") == 0) {
 			//only call this method when you want to quit the app
-			stopCEF();
+			// stopCEF();
 			result(1, nullptr);
 		}
 		else if (name.compare("create") == 0) {
@@ -230,6 +240,8 @@ namespace webview_cef {
 			int browserId = int(webview_value_get_int(values));
 			m_handler->closeBrowser(browserId);
 			if(m_renderers.find(browserId) != m_renderers.end() && m_renderers[browserId] != nullptr) {
+				std::shared_ptr<WebviewTexture> texture = m_renderers[browserId];
+				m_destoryTextureFunc(texture->textureId);
 				m_renderers[browserId].reset();
 			}
 			result(1, nullptr);
@@ -419,6 +431,11 @@ namespace webview_cef {
 	{
 		m_createTextureFunc = func;
 	}
+
+	void WebviewPlugin::setDestoryTextureFunc(std::function<void(int64_t textureId)> func) 
+	{
+		m_destoryTextureFunc = func;
+	}
 	
 	bool WebviewPlugin::getAnyBrowserFocused(){
 		for(auto render : m_renderers){
@@ -513,6 +530,8 @@ namespace webview_cef {
 
     void stopCEF()
     {
+		app = nullptr;
+		CefDoMessageLoopWork();
 		CefShutdown();
     }
 }

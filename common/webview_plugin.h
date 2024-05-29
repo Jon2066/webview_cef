@@ -25,11 +25,14 @@ namespace webview_cef {
         void setInvokeMethodFunc(std::function<void(std::string, WValue*)> func);
         void setCreateTextureFunc(std::function<std::shared_ptr<WebviewTexture>()> func);
         bool getAnyBrowserFocused();
+        void cleanAllBrowsers();
+        void setDestoryTextureFunc(std::function<void(int64_t textureId)> func);
 
     private :
         int cursorAction(WValue *args, std::string name);
     	std::function<void(std::string, WValue*)> m_invokeFunc;
 	    std::function<std::shared_ptr<WebviewTexture>()> m_createTextureFunc;
+        std::function<void(int64_t textureId)> m_destoryTextureFunc;
         CefRefPtr<WebviewHandler> m_handler;
 	    CefRefPtr<WebviewApp> m_app;
     	std::unordered_map<int, std::shared_ptr<WebviewTexture>> m_renderers;
