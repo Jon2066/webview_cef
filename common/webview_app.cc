@@ -23,8 +23,8 @@ public:
     
     void OnWindowCreated(CefRefPtr<CefWindow> window) override {
         // Add the browser view and show the window.
-        window->AddChildView(browser_view_);
-        window->Show();
+        // window->AddChildView(browser_view_);
+        // window->Show();
         
         // Give keyboard focus to the browser view.
         browser_view_->RequestFocus();
